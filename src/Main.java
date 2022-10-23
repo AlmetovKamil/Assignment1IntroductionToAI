@@ -2,155 +2,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-//    public static Cell[][] generateMap() {
-//        Cell[][] map = new Cell[9][9];
-//        Random random = new Random();
-//        boolean[] used = new boolean[CellType.values().length];
-//        for (int i = 0; i < CellType.values().length; ++i) {
-//            CellType type = CellType.values()[i];
-//            if (type == CellType.KrakenBelowRock || type == CellType.PerceptionZone ||
-//                    type == CellType.SeaCell || used[i])
-//                continue;
-//            while (!used[i]) {
-//                int temp = random.nextInt(0, 9 * 9);
-//                int x = temp / 9, y = temp % 9;
-//                // System.out.println("x = " + x + ", y = " + y);
-//                // if nothing is in the considering cell yet
-//                if (map[x][y] == null) {
-//                    Cell enemy = new Cell(type, x, y);
-//                    if (type == CellType.Kraken || type == CellType.DavyJones) {
-//                        generatePerceptionZones(map, enemy);
-//                    }
-//                    map[x][y] = enemy;
-//                    used[i] = true;
-//                }
-//                // if there is already something in the considering cell
-//                else {
-//                    // this types of cell cannot occur neither at the perception zone nor with anyone else
-//                    if (type == CellType.Tortuga || type == CellType.DeadManChest || type == CellType.JackSparrow) {
-//                        continue;
-//                    }
-//                    // Kraken can be with the rock at one cell
-//                    if (type == CellType.Rock && map[x][y].type == CellType.Kraken) {
-//                        map[x][y] = new Cell(CellType.KrakenBelowRock, x, y);
-//                        used[i] = true;
-//                    }
-//                    // The rock can be inside the perception zone
-//                    else if (type == CellType.Rock && map[x][y].type == CellType.PerceptionZone) {
-//                        map[x][y] = new Cell(CellType.Rock, x, y);
-//                        used[i] = true;
-//                    }
-//                }
-//            }
-//        }
-//        generateSeaCells(map);
-//        return map;
-//    }
-//    public static Cell[][] createMapWithInput(Cell[] units) {
-//        Cell[][] map = new Cell[9][9];
-//        for (var unit : units) {
-//            map[unit.x][unit.y] = unit;
-//            if (unit.type == CellType.Kraken || unit.type == CellType.DavyJones) {
-//                generatePerceptionZones(map, unit);
-//            }
-//        }
-//        generateSeaCells(map);
-//        return map;
-//    }
-//
-//    public static Cell[] input() {
-//        File input = new File("input.txt");
-//        Scanner in;
-//        try {
-//            in = new Scanner(input);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//            in = new Scanner(System.in);
-//        }
-//        Pattern wholeLinePattern = Pattern.compile("\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s");
-//        Pattern pattern = Pattern.compile("\\[\\d,\\d]\\s");
-//        String inputLine = in.nextLine() + "\n";
-//        Matcher matcher = wholeLinePattern.matcher(inputLine);
-//        while (!matcher.find()) {
-//            System.out.println("The input in the file is incorrect, try again...");
-//            inputLine = in.nextLine();
-//            matcher = pattern.matcher(inputLine);
-//        }
-//        matcher = pattern.matcher(inputLine);
-//        Cell[] units = new Cell[6];
-//        CellType[] orderedTypes = new CellType[6];
-//        orderedTypes[0] = CellType.JackSparrow;
-//        orderedTypes[1] = CellType.DavyJones;
-//        orderedTypes[2] = CellType.Kraken;
-//        orderedTypes[3] = CellType.Rock;
-//        orderedTypes[4] = CellType.DeadManChest;
-//        orderedTypes[5] = CellType.Tortuga;
-//        for (int i = 0; i < 6; ++i) {
-//            // now we already checked whether the string is valid or not
-//            // therefore, unitStr = "\\[\\d,\\d]\\s"
-//            // that means unitStr[1] = x coordinate,
-//            // unitStr[3] = y coordinate
-//            boolean isFound = matcher.find();
-//            String unitStr = inputLine.substring(matcher.start(), matcher.end());
-//            int x = unitStr.charAt(1) - '0';
-//            int y = unitStr.charAt(3) - '0';
-//            units[i] = new Cell(orderedTypes[i], x, y);
-//        }
-//        return units;
-//    }
 
-
-
-    public static int backtracking(Cell[][] map, Cell start, Cell end, Cell current, boolean[][] used, int d) {
-        assert current.isNonDangerous();
-        // statement to return
-        current.d = d;
-        used[current.x][current.y] = true;
-        if (current.type == CellType.DeadManChest) {
-            return d;
-        }
-
-        int res = Integer.MAX_VALUE;
-        for (int i = Math.max(current.x - 1, 0); i <= Math.min(current.x + 1, 9 - 1); ++i) {
-            for (int j = Math.max(current.y - 1, 0); j <= Math.min(current.y + 1, 9 - 1); ++j) {
-                if (i == current.x && j == current.y) continue;
-                if (map[i][j].isNonDangerous() && map[i][j].d > d + 1) {
-                    res = Math.min(backtracking(map, start, end, map[i][j], used, d + 1), res);
-                }
-            }
-        }
-        return res;
-    }
-
-
-
-
-    public static void main(String[] args) {
-        //Cell[][] map = createMapWithInput(input());
-        //Cell[][] map = generateMap();
-//        printMap(map);
-//        boolean[][] used = new boolean[9][9];
-//        int res = backtracking(map, map[6][5], map[5][6], map[6][5], used, 0);
-//        System.out.println(res);
+//TODO - in the units map JackSparrow and Tortuga are different members, even if they are in the same cell
+    public static void main(String[] args) throws IOException {
         Map map = new Map();
-        try {
-            map.readInput("input.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        map.generateMap();
+        map.printUnits();
         System.out.println(map.units);
-        try {
-            map.generate();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        map.print();
     }
 }
 
@@ -179,57 +40,22 @@ class Cell {
         return this.type != CellType.Kraken && this.type != CellType.DavyJones && this.type != CellType.Rock
                 && this.type != CellType.KrakenBelowRock && this.type != CellType.PerceptionZone;
     }
-
-//    public void setUnitsFromInputFile(File input) throws FileNotFoundException {
-//        Scanner in = new Scanner(input);
-//        String wholeLineRegEx = "\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s";
-//        String singleUnitRegEx = "\\[\\d,\\d]\\s";
-//        Pattern wholeLinePattern = Pattern.compile(wholeLineRegEx);
-//        Pattern singleUnitPattern = Pattern.compile(singleUnitRegEx);
-//        String inputLine = in.nextLine() + "\n";
-//        Matcher wholeLineMatcher = wholeLinePattern.matcher(inputLine);
-//        Matcher singleUnitMatcher;
-//        while (!wholeLineMatcher.find()) {
-//            System.out.println("The input in the file is incorrect, try again...");
-//            inputLine = in.nextLine();
-//            wholeLineMatcher = singleUnitPattern.matcher(inputLine);
-//        }
-//        wholeLineMatcher = singleUnitPattern.matcher(inputLine);
-//        Cell[] units = new Cell[6];
-//        CellType[] orderedTypes = new CellType[6];
-//        orderedTypes[0] = CellType.JackSparrow;
-//        orderedTypes[1] = CellType.DavyJones;
-//        orderedTypes[2] = CellType.Kraken;
-//        orderedTypes[3] = CellType.Rock;
-//        orderedTypes[4] = CellType.DeadManChest;
-//        orderedTypes[5] = CellType.Tortuga;
-//        for (int i = 0; i < 6; ++i) {
-//            // now we already checked whether the string is valid or not
-//            // therefore, unitStr = "\\[\\d,\\d]\\s"
-//            // that means unitStr[1] = x coordinate,
-//            // unitStr[3] = y coordinate
-//            boolean isFound = wholeLineMatcher.find();
-//            String unitStr = inputLine.substring(wholeLineMatcher.start(), wholeLineMatcher.end());
-//            int x = unitStr.charAt(1) - '0';
-//            int y = unitStr.charAt(3) - '0';
-//            units[i] = new Cell(orderedTypes[i], x, y);
-//        }
-//        //return units;
-//    }
 }
 
 enum CellType {
+    JackSparrow("\uD83D\uDC24"),
     DavyJones("\uD83D\uDC80"),
     Kraken("\uD83E\uDD91"),
     Rock("\uD83E\uDEA8"),
-    Tortuga("\uD83C\uDF7A"),
     DeadManChest("\uD83E\uDE99"),
-    JackSparrow("\uD83D\uDC24"),
-    KrakenBelowRock("\uD83D\uDC7E"),
+    Tortuga("\uD83C\uDF7A"),
+    PerceptionZone("\uD83D\uDEAB"),
     SeaCell("\uD83C\uDF0A"),
-    PerceptionZone("\uD83D\uDEAB");
+    KrakenBelowRock("\uD83D\uDC7E"),
+    JackOnTortuga("\uD83E\uDD9C");
 
     final String emoji;
+    final static int NUMBER_OF_UNITS = 6;
 
     CellType(String emoji) {
         this.emoji = emoji;
@@ -248,6 +74,18 @@ class Map {
         units = new HashMap<>(6);
     }
 
+    public void clear() {
+        cells = new Cell[size][size];
+        units = new HashMap<>(6);
+    }
+
+    public void printUnits() {
+        for (int i = 0; i < CellType.NUMBER_OF_UNITS; ++i) {
+            System.out.printf("[%d,%d] ", units.get(CellType.values()[i]).x, units.get(CellType.values()[i]).y);
+        }
+        System.out.println();
+    }
+
     // TODO - should support output to the file
     public void print() {
         for (int i = 0; i < 9; ++i) {
@@ -258,14 +96,67 @@ class Map {
         }
     }
 
-    private void generatePerceptionZones(Cell enemy) {
-        assert enemy.type == CellType.Kraken || enemy.type == CellType.DavyJones;
+    public void generateMap() {
+        Scanner in = new Scanner(System.in);
+        String answer = "0";
+        while (!answer.equals("1") && !answer.equals("2")) {
+            System.out.println("""
+                    Choose the input type (1 or 2):
+                    1 - generate the map and manually insert perception scenario from console
+                    2 - insert the positions of agents and perception scenario from the input.txt""");
+            if (in.hasNext()) {
+                answer = in.next();
+                if (!answer.equals("1") && !answer.equals("2")) {
+                    System.out.println("You typed something wrong. Just type 1 or 2");
+                }
+            }
+        }
+        if (answer.equals("1")) {
+            generateMapRandomly();
+            System.out.println("Map is successfully generated!");
+            print();
+            String typeOfScenarioStr = "0";
+            while (!typeOfScenarioStr.equals("1") && !typeOfScenarioStr.equals("2")) {
+                System.out.println("Choose the perception scenario (1 or 2) as specified in the assignment:");
+                if (in.hasNext()) {
+                    typeOfScenarioStr = in.next();
+                    if (!typeOfScenarioStr.equals("1") && !typeOfScenarioStr.equals("2")) {
+                        System.out.println("You typed something wrong. Just type 1 or 2");
+                    }
+                }
+            }
+            typeOfScenario = Integer.parseInt(typeOfScenarioStr);
+            System.out.println("Perception scenario: " + typeOfScenario);
+        } else {
+            while (true) {
+                try {
+                    readInput("input.txt");
+                    generateFromInputFile();
+                    System.out.println("The map from file is successfully generated");
+                    print();
+                    System.out.println("Perception scenario: " + typeOfScenario);
+                    break;
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("Fix the file issue and type anything to console to try again");
+                    in.next();
+                }
+            }
+
+        }
+        in.close();
+    }
+
+    private void putPerceptionZones(Cell enemy) {
+        assert enemy.type == CellType.Kraken || enemy.type == CellType.DavyJones
+                || enemy.type == CellType.KrakenBelowRock;
         for (int j = Math.max(enemy.x - 1, 0); j <= Math.min(enemy.x + 1, 9 - 1); ++j) {
             for (int k = Math.max(enemy.y - 1, 0); k <= Math.min(enemy.y + 1, 9 - 1); ++k) {
                 // the cell where the Kraken or Davy Jones stays themselves
                 if (j == enemy.x && k == enemy.y) continue;
                 // don't fill the diagonal cell as perception zones if it's the Kraken
-                if (j != enemy.x && k != enemy.y && enemy.type == CellType.Kraken) continue;
+                if (j != enemy.x && k != enemy.y &&
+                        (enemy.type == CellType.Kraken || enemy.type == CellType.KrakenBelowRock)) continue;
                 if (cells[j][k] == null) {
                     cells[j][k] = new Cell(CellType.PerceptionZone, j, k);
                 }
@@ -283,44 +174,155 @@ class Map {
         }
     }
 
-    // TODO - 2 open questions about generation
-    public void generate() throws IOException {
-        CellType[] orderedTypes = CellType.values();
-        for (int i = 0; i < 6; ++i) {
-            Cell currentUnit = units.get(orderedTypes[i]);
-            Cell currentCellOnMap = cells[currentUnit.x][currentUnit.y];
-            if (currentCellOnMap != null) {
-                // it's work because types are ordered as we want
-                if (currentCellOnMap.type == CellType.Kraken && currentUnit.type == CellType.Rock) {
-                    currentCellOnMap.type = CellType.KrakenBelowRock;
-                    units.remove(CellType.Kraken);
-                    units.remove(CellType.Rock);
-                    units.put(CellType.KrakenBelowRock, currentCellOnMap);
-                    cells[currentUnit.x][currentUnit.y] = currentCellOnMap;
+    private void generateMapRandomly() {
+        Random random = new Random();
+        boolean[] used = new boolean[CellType.NUMBER_OF_UNITS];
+        for (int i = 0; i < CellType.NUMBER_OF_UNITS; ++i) {
+            CellType type = CellType.values()[i];
+            while (!used[i]) {
+                int temp = random.nextInt(0, 9 * 9);
+                int x, y;
+                if (type == CellType.JackSparrow) {
+                    x = 0;
+                    y = 0;
+                } else {
+                    x = temp / 9;
+                    y = temp % 9;
                 }
-                else if ((currentUnit.type == CellType.Kraken || currentUnit.type == CellType.Rock)
-                        && currentCellOnMap.type == CellType.PerceptionZone) {
-                    cells[currentUnit.x][currentUnit.y] = currentUnit;
+                // System.out.println("x = " + x + ", y = " + y);
+                Cell cell = new Cell(type, x, y);
+                if (canPutUnit(cell)) {
+                    putUnit(cell);
+                    units.put(type, cell);
+                    used[i] = true;
                 }
-                else {
-                    throw new IOException("Location of units is invalid. Fix it and rerun the program.");
-                }
-            }
-            else {
-                cells[currentUnit.x][currentUnit.y] = currentUnit;
-            }
-            switch (currentUnit.type) {
-                case DavyJones, Kraken -> generatePerceptionZones(currentUnit);
             }
         }
         generateSeaCells();
     }
 
+    private boolean canPutPerceptionZone(int x, int y) {
+        if (x < 0 || x >= size || y < 0 || y >= size) return false;
+        return (cells[x][y] == null || cells[x][y].type == CellType.Kraken
+                || cells[x][y].type == CellType.KrakenBelowRock
+                || cells[x][y].type == CellType.Rock
+                || cells[x][y].type == CellType.DavyJones
+                || cells[x][y].type == CellType.PerceptionZone);
+    }
+
+    private boolean canPutUnit(Cell cell) {
+        assert cell.type != CellType.PerceptionZone && cell.type != CellType.SeaCell
+                && cell.type != CellType.KrakenBelowRock && cell.type != CellType.JackOnTortuga;
+        Cell cellOnMap = cells[cell.x][cell.y];
+        switch (cell.type) {
+            case JackSparrow -> {
+                return cellOnMap == null || cellOnMap.type == CellType.Tortuga;
+            }
+            case Rock -> {
+                return cellOnMap == null || cellOnMap.type == CellType.PerceptionZone || cellOnMap.type == CellType.Kraken;
+            }
+            case DeadManChest -> {
+                return cellOnMap == null;
+            }
+            case Tortuga -> {
+                return cellOnMap == null || cellOnMap.type == CellType.JackSparrow;
+            }
+            case Kraken, DavyJones -> {
+                if (cell.type == CellType.Kraken && cellOnMap != null && cellOnMap.type == CellType.Rock) return true;
+                if (cellOnMap != null && cellOnMap.type != CellType.PerceptionZone) return false;
+                for (int i = cell.x - 1; i < cell.x + 1; ++i) {
+                    for (int j = cell.y - 1; j < cell.y + 1; ++j) {
+                        if (i == cell.x && j == cell.y) continue;
+                        if (cell.type == CellType.Kraken) {
+                            if (i == cell.x || j == cell.y) {
+                                if (!canPutPerceptionZone(i, j)) {
+                                    return false;
+                                }
+                            }
+                        } else {
+                            if (!canPutPerceptionZone(i, j)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void putUnit(Cell cell) {
+        assert canPutUnit(cell);
+        if (cells[cell.x][cell.y] != null && cells[cell.x][cell.y].type != CellType.PerceptionZone) {
+            switch (cell.type) {
+                case Kraken, Rock -> {
+                    cell.type = CellType.KrakenBelowRock;
+                    cells[cell.x][cell.y] = cell;
+                }
+                case JackSparrow, Tortuga -> {
+                    cell.type = CellType.JackOnTortuga;
+                    cells[cell.x][cell.y] = cell;
+                }
+            }
+        } else {
+            cells[cell.x][cell.y] = cell;
+        }
+        switch (cell.type) {
+            case Kraken, KrakenBelowRock, DavyJones -> putPerceptionZones(cell);
+        }
+    }
+
+    private void generateFromInputFile() throws IOException {
+        CellType[] orderedTypes = CellType.values();
+        for (int i = 0; i < CellType.NUMBER_OF_UNITS; ++i) {
+            Cell currentUnit = units.get(orderedTypes[i]);
+            if (!canPutUnit(currentUnit)) {
+                throw new IOException("Location of units is invalid. Fix it and rerun the program.");
+            }
+            putUnit(currentUnit);
+        }
+        generateSeaCells();
+    }
+
+    // TODO - 2 open questions about generation
+//    public void createFromInputFile() throws IOException {
+//        CellType[] orderedTypes = CellType.values();
+//        for (int i = 0; i < CellType.NUMBER_OF_UNITS; ++i) {
+//            Cell currentUnit = units.get(orderedTypes[i]);
+//            Cell currentCellOnMap = cells[currentUnit.x][currentUnit.y];
+//            if (currentCellOnMap != null) {
+//                // it's work because types are ordered as we want
+//                if (currentCellOnMap.type == CellType.Kraken && currentUnit.type == CellType.Rock) {
+//                    currentCellOnMap.type = CellType.KrakenBelowRock;
+//                    units.remove(CellType.Kraken);
+//                    units.remove(CellType.Rock);
+//                    units.put(CellType.KrakenBelowRock, currentCellOnMap);
+//                    cells[currentUnit.x][currentUnit.y] = currentCellOnMap;
+//                } else if ((currentUnit.type == CellType.Kraken || currentUnit.type == CellType.Rock)
+//                        && currentCellOnMap.type == CellType.PerceptionZone) {
+//                    cells[currentUnit.x][currentUnit.y] = currentUnit;
+//                } else if (currentUnit.type == CellType.Tortuga && currentCellOnMap.type == CellType.JackSparrow) {
+//                    currentCellOnMap.type = CellType.JackOnTortuga;
+//                    cells[currentUnit.x][currentUnit.y] = currentCellOnMap;
+//                } else {
+//                    throw new IOException("Location of units is invalid. Fix it and rerun the program.");
+//                }
+//            } else {
+//                cells[currentUnit.x][currentUnit.y] = currentUnit;
+//            }
+//            switch (currentUnit.type) {
+//                case DavyJones, Kraken -> generatePerceptionZones(currentUnit);
+//            }
+//        }
+//        generateSeaCells();
+//    }
+
     private boolean isValidInput(String path) throws FileNotFoundException {
         File input = new File(path);
         Scanner in = new Scanner(input);
         in.useDelimiter("\n");
-        String regEx = "^\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]";
+        String regEx = "^\\[0,0]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]";
         String regEx2 = "[12]";
         Pattern pattern = Pattern.compile(regEx);
         if (!in.hasNext(pattern)) {
@@ -340,7 +342,8 @@ class Map {
         if (!isValidInput(path)) {
             throw new IOException("The input is invalid. Fix it and rerun the program.");
         }
-        Scanner in = new Scanner(new File(path));
+        File input = new File(path);
+        Scanner in = new Scanner(input);
         CellType[] unitTypesOrdered = {CellType.JackSparrow, CellType.DavyJones, CellType.Kraken, CellType.Rock,
                 CellType.DeadManChest, CellType.Tortuga};
 
@@ -349,11 +352,31 @@ class Map {
             Cell unitCell = new Cell(unitTypesOrdered[i], unitDataStr.charAt(1) - '0', unitDataStr.charAt(3) - '0');
             units.put(unitTypesOrdered[i], unitCell);
         }
-
         typeOfScenario = in.next().charAt(0) - '0';
+        in.close();
     }
+}
 
-    public void generateUnitCells() {
+class SearchAlgorithms {
+    // TODO - add Tortuga functionality
+    public static int backtracking(Map map, Cell current, boolean[][] used, int d) {
+        assert current.isNonDangerous();
+        // statement to return
+        current.d = d;
+        used[current.x][current.y] = true;
+        if (current.type == CellType.DeadManChest) {
+            return d;
+        }
 
+        int res = Integer.MAX_VALUE;
+        for (int i = Math.max(current.x - 1, 0); i <= Math.min(current.x + 1, 9 - 1); ++i) {
+            for (int j = Math.max(current.y - 1, 0); j <= Math.min(current.y + 1, 9 - 1); ++j) {
+                if (i == current.x && j == current.y) continue;
+                if (map.cells[i][j].isNonDangerous() && map.cells[i][j].d > d + 1) {
+                    res = Math.min(backtracking(map, map.cells[i][j], used, d + 1), res);
+                }
+            }
+        }
+        return res;
     }
 }
