@@ -1,17 +1,35 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class Main {
-
-//TODO - in the units map JackSparrow and Tortuga are different members, even if they are in the same cell
+    //TODO - file reading several times is not working
+    //TODO - in the units map JackSparrow and Tortuga are different members, even if they are in the same cell
     public static void main(String[] args) throws IOException {
         Map map = new Map();
         map.generateMap();
         map.printUnits();
-        System.out.println(map.units);
+        //System.out.println(map.units);
+        ArrayList<Cell> res = SearchAlgorithms.backtracking(map);
+        PrintWriter printWriter = new PrintWriter("output.txt");
+
+        if (res == null) {
+            printWriter.println("Lose");
+        } else {
+            printWriter.println("Win");
+            for (var cell : res) {
+                printWriter.printf("[%d,%d] ", cell.x, cell.y);
+            }
+            printWriter.println();
+            printWriter.println(map.mapWithPathToString(res));
+            printWriter.println("TODO - TIME");
+        }
+        printWriter.close();
+        //System.out.println(res);
+        //map.print();
     }
 }
 
@@ -19,6 +37,7 @@ class Cell {
     int x, y;
     CellType type;
     int d = Integer.MAX_VALUE;
+    Cell parent;
 
     Cell(CellType type, int x, int y) {
         this.type = type;
@@ -52,7 +71,8 @@ enum CellType {
     PerceptionZone("\uD83D\uDEAB"),
     SeaCell("\uD83C\uDF0A"),
     KrakenBelowRock("\uD83D\uDC7E"),
-    JackOnTortuga("\uD83E\uDD9C");
+    JackOnTortuga("\uD83E\uDD9C"),
+    PathCell("\uD83D\uDFE2");
 
     final String emoji;
     final static int NUMBER_OF_UNITS = 6;
@@ -72,6 +92,13 @@ class Map {
         size = 9;
         cells = new Cell[size][size];
         units = new HashMap<>(6);
+    }
+
+    public Map(Map map) {
+        this.size = map.size;
+        this.cells = Arrays.stream(map.cells).map(Cell[]::clone).toArray(Cell[][]::new);
+        this.units = new HashMap<>(map.units);
+        this.typeOfScenario = map.typeOfScenario;
     }
 
     public void clear() {
@@ -355,28 +382,120 @@ class Map {
         typeOfScenario = in.next().charAt(0) - '0';
         in.close();
     }
+
+    public boolean isKrakenWeakness(Cell cell) {
+        Cell kraken;
+        if (units.containsKey(CellType.Kraken)) {
+            kraken = units.get(CellType.Kraken);
+        } else {
+            kraken = units.get(CellType.KrakenBelowRock);
+        }
+        return Math.abs(cell.x - kraken.x) == 1 && Math.abs(cell.y - kraken.y) == 1;
+    }
+
+    public boolean isNonDangerous(Cell cell, boolean isKrakenDead) {
+        switch (cell.type) {
+            case DavyJones, KrakenBelowRock, Rock -> {
+                return false;
+            }
+            case Kraken -> {
+                return isKrakenDead;
+            }
+            case PerceptionZone -> {
+                if (isKrakenDead) {
+                    Cell davyJones = units.get(CellType.DavyJones);
+                    return !(Math.abs(cell.x - davyJones.x) <= 1 && Math.abs(cell.y - davyJones.y) <= 1);
+                } else {
+                    return false;
+                }
+            }
+            default -> {
+                return true;
+            }
+        }
+    }
+
+    public String mapWithPathToString(ArrayList<Cell> path) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                if (path.contains(cells[i][j])) {
+                    stringBuilder.append(CellType.PathCell.emoji);
+                } else {
+                    stringBuilder.append(cells[i][j].type.emoji);
+                }
+            }
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
+    }
 }
 
 class SearchAlgorithms {
-    // TODO - add Tortuga functionality
-    public static int backtracking(Map map, Cell current, boolean[][] used, int d) {
-        assert current.isNonDangerous();
-        // statement to return
+    // returns the path from current to destination
+    private static ArrayList<Cell> backtracking(Map map, ArrayList<Cell> path, Cell current, Cell destination, int d, boolean hasVisitedTortuga, boolean isKrakenKilled) {
         current.d = d;
-        used[current.x][current.y] = true;
-        if (current.type == CellType.DeadManChest) {
-            return d;
+        if (current.type == CellType.Tortuga || current.type == CellType.JackOnTortuga) {
+            hasVisitedTortuga = true;
         }
-
-        int res = Integer.MAX_VALUE;
-        for (int i = Math.max(current.x - 1, 0); i <= Math.min(current.x + 1, 9 - 1); ++i) {
-            for (int j = Math.max(current.y - 1, 0); j <= Math.min(current.y + 1, 9 - 1); ++j) {
+        if (map.isKrakenWeakness(current) && hasVisitedTortuga) {
+            isKrakenKilled = true;
+        }
+        if (current == destination) {
+            return path;
+        }
+        int minSize = Integer.MAX_VALUE;
+        ArrayList<Cell> result = null;
+        for (int i = Math.max(0, current.x - 1); i <= Math.min(map.size - 1, current.x + 1); ++i) {
+            for (int j = Math.max(0, current.y - 1); j <= Math.min(map.size - 1, current.y + 1); ++j) {
                 if (i == current.x && j == current.y) continue;
-                if (map.cells[i][j].isNonDangerous() && map.cells[i][j].d > d + 1) {
-                    res = Math.min(backtracking(map, map.cells[i][j], used, d + 1), res);
+                if (map.isNonDangerous(map.cells[i][j], isKrakenKilled) && map.cells[i][j].d > d + 1) {
+                    ArrayList<Cell> tmp = new ArrayList<>(path);
+                    tmp.add(map.cells[i][j]);
+                    ArrayList<Cell> tmp2 =
+                            backtracking(map, tmp, map.cells[i][j], destination, d + 1, hasVisitedTortuga, isKrakenKilled);
+                    int currentLength = Integer.MAX_VALUE;
+                    if (tmp2 != null) {
+                        currentLength = tmp2.size();
+                    }
+                    if (minSize > currentLength) {
+                        minSize = currentLength;
+                        result = tmp2;
+                    }
                 }
             }
         }
-        return res;
+        return result;
+    }
+
+    public static ArrayList<Cell> backtracking(Map map) {
+        ArrayList<Cell> result = backtracking(map, new ArrayList<>(), map.cells[0][0],
+                map.units.get(CellType.DeadManChest), 0, false, false);
+        for (int i = 0; i < map.size; ++i) {
+            for (int j = 0; j < map.size; ++j) {
+                map.cells[i][j].d = Integer.MAX_VALUE;
+            }
+        }
+        if (result == null) {
+            result = backtracking(map, new ArrayList<>(), map.cells[0][0],
+                    map.units.get(CellType.Tortuga), 0, false, false);
+            for (int i = 0; i < map.size; ++i) {
+                for (int j = 0; j < map.size; ++j) {
+                    map.cells[i][j].d = Integer.MAX_VALUE;
+                }
+            }
+            if (result == null) {
+                return null;
+            }
+            result.addAll(backtracking(map, new ArrayList<>(), map.units.get(CellType.Tortuga),
+                    map.units.get(CellType.DeadManChest), 0, false, false));
+            for (int i = 0; i < map.size; ++i) {
+                for (int j = 0; j < map.size; ++j) {
+                    map.cells[i][j].d = Integer.MAX_VALUE;
+                }
+            }
+        }
+        result.add(0, map.cells[0][0]);
+        return result;
     }
 }

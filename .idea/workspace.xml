@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce6b7918-4f1d-4922-b24b-0c7bc1d5a5b8" name="Changes" comment="Add backtracking algorithm (partially), refactor code, finish processing input from file.">
+    <list default="true" id="ce6b7918-4f1d-4922-b24b-0c7bc1d5a5b8" name="Changes" comment="Add fully completed input routine, including random map generation and taking information from input.txt">
+      <change afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/input.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
@@ -34,21 +35,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/kamil/IdeaProjects/Assignment1IntroductionToAI/src&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "dart.analysis.tool.window.visible": "false",
+    "last_opened_file_path": "/home/kamil/IdeaProjects/Assignment1IntroductionToAI/src",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
@@ -93,7 +94,7 @@
       <workItem from="1666185538995" duration="5197000" />
       <workItem from="1666262000963" duration="3522000" />
       <workItem from="1666346298020" duration="17487000" />
-      <workItem from="1666514707949" duration="9680000" />
+      <workItem from="1666514707949" duration="26670000" />
     </task>
     <task id="LOCAL-00001" summary="Add map generator">
       <created>1666209207192</created>
@@ -116,7 +117,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666384837469</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Add fully completed input routine, including random map generation and taking information from input.txt">
+      <created>1666528418470</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1666528418472</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -137,7 +145,8 @@
     <MESSAGE value="Add map generator" />
     <MESSAGE value="Add map creation from input file" />
     <MESSAGE value="Add backtracking algorithm (partially), refactor code, finish processing input from file." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add backtracking algorithm (partially), refactor code, finish processing input from file." />
+    <MESSAGE value="Add fully completed input routine, including random map generation and taking information from input.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add fully completed input routine, including random map generation and taking information from input.txt" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -152,12 +161,12 @@
         </breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Main.java</url>
-          <line>212</line>
-          <properties class="Map" method="canPutUnit">
+          <line>417</line>
+          <properties class="Map" method="mapWithPathToString">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
-          <option name="timeStamp" value="8" />
+          <option name="timeStamp" value="18" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
