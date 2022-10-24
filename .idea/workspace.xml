@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce6b7918-4f1d-4922-b24b-0c7bc1d5a5b8" name="Changes" comment="Add fully completed input routine, including random map generation and taking information from input.txt">
-      <change afterPath="$PROJECT_DIR$/output.txt" afterDir="false" />
+    <list default="true" id="ce6b7918-4f1d-4922-b24b-0c7bc1d5a5b8" name="Changes" comment="Add backtracking algorithm, print to the output.txt functionality">
+      <change afterPath="$PROJECT_DIR$/outputAStar.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/outputBacktracking.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/input.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main2.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/inputSample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/inputSample.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -73,9 +76,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="SampleTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="SampleTest" />
+      <module name="Assignment1IntroductionToAI" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.SampleTest" />
         <item itemvalue="Application.Main2" />
       </list>
     </recent_temporary>
@@ -94,7 +105,7 @@
       <workItem from="1666185538995" duration="5197000" />
       <workItem from="1666262000963" duration="3522000" />
       <workItem from="1666346298020" duration="17487000" />
-      <workItem from="1666514707949" duration="26670000" />
+      <workItem from="1666514707949" duration="45863000" />
     </task>
     <task id="LOCAL-00001" summary="Add map generator">
       <created>1666209207192</created>
@@ -124,7 +135,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666528418472</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Add backtracking algorithm, print to the output.txt functionality">
+      <created>1666562243066</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1666562243066</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -146,7 +164,8 @@
     <MESSAGE value="Add map creation from input file" />
     <MESSAGE value="Add backtracking algorithm (partially), refactor code, finish processing input from file." />
     <MESSAGE value="Add fully completed input routine, including random map generation and taking information from input.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add fully completed input routine, including random map generation and taking information from input.txt" />
+    <MESSAGE value="Add backtracking algorithm, print to the output.txt functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add backtracking algorithm, print to the output.txt functionality" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -159,14 +178,19 @@
           <properties class="java.io.IOException" package="java.io" />
           <option name="timeStamp" value="6" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Main.java</url>
+          <line>753</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Main.java</url>
-          <line>417</line>
-          <properties class="Map" method="mapWithPathToString">
+          <line>723</line>
+          <properties class="SearchAlgorithms" method="AStar">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
-          <option name="timeStamp" value="18" />
+          <option name="timeStamp" value="23" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
