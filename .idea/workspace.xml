@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce6b7918-4f1d-4922-b24b-0c7bc1d5a5b8" name="Changes" comment="Add backtracking algorithm, print to the output.txt functionality">
-      <change afterPath="$PROJECT_DIR$/outputAStar.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/outputBacktracking.txt" afterDir="false" />
+    <list default="true" id="ce6b7918-4f1d-4922-b24b-0c7bc1d5a5b8" name="Changes" comment="Add A* algorithm, generation of random sample, calculation statistical characteristics (not completed yet).">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/outputAStar.txt" beforeDir="false" afterPath="$PROJECT_DIR$/outputAStar.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/outputBacktracking.txt" beforeDir="false" afterPath="$PROJECT_DIR$/outputBacktracking.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/inputSample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/inputSample.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,21 +34,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "dart.analysis.tool.window.visible": "false",
-    "last_opened_file_path": "/home/kamil/IdeaProjects/Assignment1IntroductionToAI/src",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "show.migrate.to.gradle.popup": "false"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kamil/IdeaProjects/Assignment1IntroductionToAI/src&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
@@ -61,7 +57,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="Application.SampleTest">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="Assignment1IntroductionToAI" />
@@ -85,8 +81,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Main" />
         <item itemvalue="Application.SampleTest" />
+        <item itemvalue="Application.Main" />
         <item itemvalue="Application.Main2" />
       </list>
     </recent_temporary>
@@ -105,7 +101,8 @@
       <workItem from="1666185538995" duration="5197000" />
       <workItem from="1666262000963" duration="3522000" />
       <workItem from="1666346298020" duration="17487000" />
-      <workItem from="1666514707949" duration="45863000" />
+      <workItem from="1666514707949" duration="47521000" />
+      <workItem from="1666721967931" duration="2998000" />
     </task>
     <task id="LOCAL-00001" summary="Add map generator">
       <created>1666209207192</created>
@@ -142,7 +139,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666562243066</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Add A* algorithm, generation of random sample, calculation statistical characteristics (not completed yet).">
+      <created>1666636866423</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1666636866423</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -165,7 +169,8 @@
     <MESSAGE value="Add backtracking algorithm (partially), refactor code, finish processing input from file." />
     <MESSAGE value="Add fully completed input routine, including random map generation and taking information from input.txt" />
     <MESSAGE value="Add backtracking algorithm, print to the output.txt functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add backtracking algorithm, print to the output.txt functionality" />
+    <MESSAGE value="Add A* algorithm, generation of random sample, calculation statistical characteristics (not completed yet)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add A* algorithm, generation of random sample, calculation statistical characteristics (not completed yet)." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -178,14 +183,9 @@
           <properties class="java.io.IOException" package="java.io" />
           <option name="timeStamp" value="6" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/Main.java</url>
-          <line>753</line>
-          <option name="timeStamp" value="20" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Main.java</url>
-          <line>723</line>
+          <line>784</line>
           <properties class="SearchAlgorithms" method="AStar">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
