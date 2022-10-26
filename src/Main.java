@@ -6,54 +6,41 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class Main {
-    //TODO - file reading several times is not working
-    //TODO - in the units map JackSparrow and Tortuga are different members, even if they are in the same cell
     public static void main(String[] args) throws IOException {
         Map map = new Map();
         map.generateMap();
-        map.printUnits();
-        //System.out.println(map.units);
+
         long backtrackingTime = System.currentTimeMillis();
         ArrayList<Cell> pathBacktracking = SearchAlgorithms.backtracking(map);
         backtrackingTime = System.currentTimeMillis() - backtrackingTime;
-        if (pathBacktracking == null) System.out.println("Backtracking = 0");
-        else System.out.println("Backtracking = " + pathBacktracking.size());
-        System.out.println(backtrackingTime + " ms");
+
         long AStarTime = System.currentTimeMillis();
         ArrayList<Cell> pathAStar = SearchAlgorithms.AStar(map);
         AStarTime = System.currentTimeMillis() - AStarTime;
-        if (pathAStar == null) System.out.println("A* = 0");
-        else System.out.println("A* = " + pathAStar.size());
-        System.out.println(AStarTime + " ms");
-        PrintWriter printWriterBacktracking = new PrintWriter("outputBacktracking.txt");
-        PrintWriter printWriterAStar = new PrintWriter("outputAStar.txt");
 
-        if (pathBacktracking == null) {
-            printWriterBacktracking.println("Lose");
+        printResultToTheOutputFile("outputBacktracking.txt", map, pathBacktracking, backtrackingTime);
+        printResultToTheOutputFile("outputAStar.txt", map, pathAStar, AStarTime);
+    }
+
+    /**
+     * Prints the shortest path to the output file and all corresponding information specified in the assignment
+     * @throws FileNotFoundException if the file doesn't exist
+     */
+    public static void printResultToTheOutputFile(String pathOfOutputFile, Map map, ArrayList<Cell> shortestPath, long time) throws FileNotFoundException {
+        PrintWriter printWriter = new PrintWriter(pathOfOutputFile);
+
+        if (shortestPath == null) {
+            printWriter.println("Lose");
         } else {
-            printWriterBacktracking.println("Win");
-            for (var cell : pathBacktracking) {
-                printWriterBacktracking.printf("[%d,%d] ", cell.y, cell.x);
+            printWriter.println("Win");
+            for (var cell : shortestPath) {
+                printWriter.printf(cell + " ");
             }
-            printWriterBacktracking.println();
-            printWriterBacktracking.println(map.mapWithPathToString(pathBacktracking));
-            printWriterBacktracking.println("TODO - TIME");
+            printWriter.println();
+            printWriter.println(map.mapWithPathToString(shortestPath));
+            printWriter.println(time + " ms");
         }
-        printWriterBacktracking.close();
-
-        if (pathAStar == null) {
-            printWriterAStar.println("Lose");
-        } else {
-            printWriterAStar.println("Win");
-            for (var cell : pathAStar) {
-                printWriterAStar.printf("[%d,%d] ", cell.y, cell.x);
-            }
-            printWriterAStar.println();
-            printWriterAStar.println(map.mapWithPathToString(pathAStar));
-            printWriterAStar.println("TODO - TIME");
-        }
-        printWriterAStar.close();
-
+        printWriter.close();
     }
 
 
@@ -79,8 +66,8 @@ class SampleTest {
             AStarTime = System.currentTimeMillis() - AStarTime;
             if (pathAStar != null) aStar = pathAStar.size();
             if (backtracking != aStar) {
-                map.print();
-                map.printUnits();
+                System.out.println(map);
+                System.out.println(map.unitsToString());
                 if (pathBacktracking != null) {
                     for (var cell : pathBacktracking) {
                         System.out.print(cell);
@@ -100,13 +87,13 @@ class SampleTest {
             if (!pdfBacktracking.containsKey(backtrackingTime)) {
                 pdfBacktracking.put(backtrackingTime, 0);
             } else {
-                pdfBacktracking.put(backtrackingTime, pdfBacktracking.get(backtrackingTime)+1);
+                pdfBacktracking.put(backtrackingTime, pdfBacktracking.get(backtrackingTime) + 1);
             }
             sampleAStar.add(AStarTime);
             if (!pdfAStar.containsKey(AStarTime)) {
                 pdfAStar.put(AStarTime, 0);
             } else {
-                pdfAStar.put(AStarTime, pdfAStar.get(AStarTime)+1);
+                pdfAStar.put(AStarTime, pdfAStar.get(AStarTime) + 1);
             }
 
             if (backtracking > 0) {
@@ -124,21 +111,21 @@ class SampleTest {
         double mean = sample.stream().mapToDouble(value -> value).sum() / n;
         long mode = pdf.entrySet().stream().max(java.util.Map.Entry.comparingByValue()).get().getKey();
         sample.sort(null);
-        double median = (sample.get(n / 2 - 1) + sample.get(n/2))*1./2;
-        double standardDeviation = Math.sqrt(sample.stream().mapToDouble(e -> (e-mean)*(e-mean)).sum() / n);
+        double median = (sample.get(n / 2 - 1) + sample.get(n / 2)) * 1. / 2;
+        double standardDeviation = Math.sqrt(sample.stream().mapToDouble(e -> (e - mean) * (e - mean)).sum() / n);
         //System.out.println(sample);
         System.out.printf("""
-                %s (1 variant):
-                Mean: %.2f ms
-                Mode: %d ms
-                Median: %.2f ms
-                Standard deviation: %.2f ms
-                Number of wins: %d
-                Number of losses: %d
-                Percent of wins: %.2f %%
-                Percent of losses: %.2f %%
-               """, algorithmName, mean, mode, median, standardDeviation,
-                wins, losses, wins*1./n * 100, losses*1./n * 100);
+                         %s (1 variant):
+                         Mean: %.2f ms
+                         Mode: %d ms
+                         Median: %.2f ms
+                         Standard deviation: %.2f ms
+                         Number of wins: %d
+                         Number of losses: %d
+                         Percent of wins: %.2f %%
+                         Percent of losses: %.2f %%
+                        """, algorithmName, mean, mode, median, standardDeviation,
+                wins, losses, wins * 1. / n * 100, losses * 1. / n * 100);
     }
 }
 
@@ -179,11 +166,12 @@ class Cell implements Comparable<Cell> {
 
     @Override
     public String toString() {
-        return "["+ y +","+ x +"]";
+        return "[" + y + "," + x + "]";
     }
 
     /**
      * Method that compares two cells by f - distance from the initial point to the final point
+     *
      * @param o the object to be compared.
      */
     @Override
@@ -257,26 +245,31 @@ class Map {
     }
 
     /**
-     * That method prints the current arrangement of the units in the format specified for the input file.
-     * It was used to print the arrangement of the maps that were led to fail of an algorithm.
+     * This method was used to print the arrangement of the maps that were led to fail of an algorithm.
+     * @return the current arrangement of the units in the format specified for the input file as a string.
      */
-    public void printUnits() {
+    public String unitsToString() {
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < CellType.NUMBER_OF_UNITS; ++i) {
-            System.out.print(units.get(CellType.values()[i]) + " ");
+            builder.append(units.get(CellType.values()[i]));
+            if (i < CellType.NUMBER_OF_UNITS - 1) builder.append(" ");
         }
-        System.out.println();
+        return builder.toString();
     }
 
     /**
-     * Prints the 2D-representation of the map to the console
+     * @return the 2D-representation of the map as a string
      */
-    public void print() {
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
-                System.out.print(cells[i][j].type.emoji);
+                builder.append(cells[i][j].type.emoji);
             }
-            System.out.println();
+            builder.append("\n");
         }
+        return builder.toString();
     }
 
     /**
@@ -300,7 +293,7 @@ class Map {
         if (answer.equals("1")) {
             generateMapRandomly();
             System.out.println("Map is successfully generated!");
-            print();
+            System.out.println(this);
             String typeOfScenarioStr = "0";
             while (!typeOfScenarioStr.equals("1") && !typeOfScenarioStr.equals("2")) {
                 System.out.println("Choose the perception scenario (1 or 2) as specified in the assignment:");
@@ -316,15 +309,15 @@ class Map {
         } else {
             while (true) {
                 try {
-                    readInput("input.txt");
+                    readInput();
                     generateFromInputFile();
                     System.out.println("The map from file is successfully generated");
-                    print();
+                    System.out.println(this);
                     System.out.println("Perception scenario: " + typeOfScenario);
                     break;
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
-                    System.out.println("Fix the file issue and type anything to console to try again");
+                    System.out.println("Fix the file issue (don't forget to save the file) and type anything to console to try again");
                     in.next();
                 }
             }
@@ -335,6 +328,7 @@ class Map {
 
     /**
      * Method that marks the perception zones of an enemy on the map.
+     *
      * @param enemy enemy unit with perception zones.
      */
     private void putPerceptionZones(Cell enemy) {
@@ -355,7 +349,7 @@ class Map {
     }
 
     /**
-     * Method that generated sea cells after all other types of units have been generated.
+     * Method that generates sea cells after all other types of units have been generated.
      */
     private void generateSeaCells() {
         for (int i = 0; i < 9; ++i) {
@@ -394,19 +388,18 @@ class Map {
     }
 
     /**
-     * @return true if it's allowed to put a perception zone at cells[y][x]
+     * @return true if it's not allowed to put a perception zone at cells[y][x]
      */
-    private boolean canPutPerceptionZone(int y, int x) {
-        if (y < 0 || y >= size || x < 0 || x >= size) return false;
-        return (cells[y][x] == null || cells[y][x].type == CellType.Kraken
-                || cells[y][x].type == CellType.KrakenBelowRock
-                || cells[y][x].type == CellType.Rock
-                || cells[y][x].type == CellType.DavyJones
-                || cells[y][x].type == CellType.PerceptionZone);
+    private boolean cannotPutPerceptionZone(int y, int x) {
+        if (y < 0 || y >= size || x < 0 || x >= size) return true;
+        return (cells[y][x] != null && cells[y][x].type != CellType.Kraken
+                && cells[y][x].type != CellType.KrakenBelowRock
+                && cells[y][x].type != CellType.Rock
+                && cells[y][x].type != CellType.DavyJones
+                && cells[y][x].type != CellType.PerceptionZone);
     }
 
     /**
-     *
      * @param cell the cell we are checking
      * @return true if we can put the cell (with its cell.y, cell.x, and cell.type) on the map
      */
@@ -435,12 +428,12 @@ class Map {
                         if (i == cell.y && j == cell.x) continue;
                         if (cell.type == CellType.Kraken) {
                             if (i == cell.y || j == cell.x) {
-                                if (!canPutPerceptionZone(i, j)) {
+                                if (cannotPutPerceptionZone(i, j)) {
                                     return false;
                                 }
                             }
                         } else {
-                            if (!canPutPerceptionZone(i, j)) {
+                            if (cannotPutPerceptionZone(i, j)) {
                                 return false;
                             }
                         }
@@ -454,6 +447,7 @@ class Map {
 
     /**
      * Puts cell to its place on te map
+     *
      * @param cell the cell we're putting on the map.
      */
     private void putUnit(Cell cell) {
@@ -480,6 +474,7 @@ class Map {
     /**
      * Generates map using information from the input file.
      * We assume that at the time this method runs, this.units is already filled with the input information.
+     *
      * @throws IOException if the location of units is invalid.
      */
     private void generateFromInputFile() throws IOException {
@@ -496,11 +491,11 @@ class Map {
 
     /**
      * Checks if the input specified in the file is valid.
-     * @param path the path of the file (either absolute or relative).
+     *
      * @throws FileNotFoundException if the file doesn't exist.
      */
-    private boolean isValidInput(String path) throws FileNotFoundException {
-        File input = new File(path);
+    private boolean isValidInput() throws FileNotFoundException {
+        File input = new File("input.txt");
         Scanner in = new Scanner(input);
         in.useDelimiter("\n");
         String regEx = "^\\[0,0]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]\\s\\[\\d,\\d]";
@@ -521,14 +516,14 @@ class Map {
 
     /**
      * Reads input from the file.
-     * @param path the file path
+     *
      * @throws IOException if the input is invalid or the file doesn't exist.
      */
-    public void readInput(String path) throws IOException {
-        if (!isValidInput(path)) {
+    private void readInput() throws IOException {
+        if (!isValidInput()) {
             throw new IOException("The input is invalid. Fix it and rerun the program.");
         }
-        File input = new File(path);
+        File input = new File("input.txt");
         Scanner in = new Scanner(input);
         CellType[] unitTypesOrdered = {CellType.JackSparrow, CellType.DavyJones, CellType.Kraken, CellType.Rock,
                 CellType.DeadManChest, CellType.Tortuga};
@@ -544,6 +539,7 @@ class Map {
 
     /**
      * Checks if the cell is the Kraken weakness
+     *
      * @param cell considering cell.
      */
     public boolean isKrakenWeakness(Cell cell) {
@@ -579,8 +575,7 @@ class Map {
     }
 
     /**
-     *
-     * @param cell considering cell
+     * @param cell         considering cell
      * @param isKrakenDead true if the Kraken has been killed already.
      * @return true if the cell is non-dangerous.
      */
@@ -624,10 +619,57 @@ class Map {
         }
         return stringBuilder.toString();
     }
+
+    /**
+     * Method that flushes the d field of cells.
+     */
+    public void clearDistances() {
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                cells[i][j].d = Integer.MAX_VALUE;
+            }
+        }
+    }
+
+    /**
+     * Update A* fields of the current cell
+     * @param current considering cell
+     * @param parent previous cell of the current in the path
+     */
+    public void updateAStarInformation(Cell current, Cell parent, Cell destination) {
+        current.g = parent.g + 1;
+        current.parent = parent;
+        current.h = Math.max(Math.abs(destination.y - current.y),
+                Math.abs(destination.x - current.x));
+        current.f = current.g + current.h;
+    }
+
+    /**
+     * Method that clears all data that is connected to the A* algorithm
+     * (parent, f, g, h fields, etc.)
+     */
+    public void clearAStarData() {
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                cells[i][j].parent = null;
+                cells[i][j].isKrakenKilled = false;
+                cells[i][j].hasVisitedTortuga = false;
+                cells[i][j].f = cells[i][j].g = cells[i][j].h = 0;
+            }
+        }
+    }
 }
 
+/**
+ * Class that contains search algorithms.
+ */
 class SearchAlgorithms {
-    // returns the path from current to destination
+    /**
+     * Supporting function that computes the shortest path from current cell to destination using backtracking algorithm.
+     *
+     * @param d distance of current part of the considering path
+     * @return list of cells that form the shortest path
+     */
     private static ArrayList<Cell> backtracking(Map map, ArrayList<Cell> path, Cell current, Cell destination, int d, boolean hasVisitedTortuga, boolean isKrakenKilled) {
         current.d = d;
         if (current.type == CellType.Tortuga || current.type == CellType.JackOnTortuga) {
@@ -663,43 +705,40 @@ class SearchAlgorithms {
         return result;
     }
 
+    /**
+     * Method for finding the shortest path using backtracking algorithm
+     *
+     * @return list of cells that form the shortest path.
+     */
     public static ArrayList<Cell> backtracking(Map map) {
+        // result1 - path from JackSparrow to Dead Man's chest
+        // result1 == null if the algorithm couldn't find a path
         ArrayList<Cell> result1 = backtracking(map, new ArrayList<>(), map.cells[0][0],
                 map.units.get(CellType.DeadManChest), 0, false, false);
-        for (int i = 0; i < map.size; ++i) {
-            for (int j = 0; j < map.size; ++j) {
-                map.cells[i][j].d = Integer.MAX_VALUE;
-            }
-        }
-        var result2 = backtracking(map, new ArrayList<>(), map.cells[0][0],
+        map.clearDistances();
+        // result2 - path from Jack Sparrow to Tortuga
+        ArrayList<Cell> result2 = backtracking(map, new ArrayList<>(), map.cells[0][0],
                 map.units.get(CellType.Tortuga), 0, false, false);
-        for (int i = 0; i < map.size; ++i) {
-            for (int j = 0; j < map.size; ++j) {
-                map.cells[i][j].d = Integer.MAX_VALUE;
-            }
-        }
-        var result2part2 = backtracking(map, new ArrayList<>(), map.units.get(CellType.Tortuga),
+        map.clearDistances();
+        // result2part2 - path from Tortuga to Dead Man;s chest
+        ArrayList<Cell> result2part2 = backtracking(map, new ArrayList<>(), map.units.get(CellType.Tortuga),
                 map.units.get(CellType.DeadManChest), 0, false, false);
+        // combine both parts of the 2 path if both of the parts have found
         if (result2 != null && result2part2 != null) {
             result2.addAll(result2part2);
-        } else {
+        }
+        // 2 path does not exist, return 1 path
+        else {
             if (result1 != null) result1.add(0, map.cells[0][0]);
             return result1;
         }
-        for (int i = 0; i < map.size; ++i) {
-            for (int j = 0; j < map.size; ++j) {
-                map.cells[i][j].d = Integer.MAX_VALUE;
-            }
-        }
-        if (result1 == null && result2 == null) return null;
-        if (result2 == null) {
-            result1.add(0, map.cells[0][0]);
-            return result1;
-        }
+        map.clearDistances();
+        // if the first one doesn't exist, return second one.
         if (result1 == null) {
             result2.add(0, map.cells[0][0]);
             return result2;
         }
+        // otherwise both of the paths exists, return the shortest one.
         if (result1.size() < result2.size()) {
             result1.add(0, map.cells[0][0]);
             return result1;
@@ -708,6 +747,11 @@ class SearchAlgorithms {
         return result2;
     }
 
+    /**
+     * Method that finds the shortest path from start cell to finish cell using A* algorithm
+     * More specifically, it finds a parent from each of the cells from the path.
+     * A parent for a cell is a previous cell in the path.
+     */
     private static void AStarAlgorithm(Map map, Cell start, Cell finish, boolean hasVisitedTortuga) {
         Set<Cell> closed = new HashSet<>();
         PriorityQueue<Cell> open = new PriorityQueue<>();
@@ -723,29 +767,25 @@ class SearchAlgorithms {
             Cell current = open.poll();
             for (int i = Math.max(0, current.y - 1); i <= Math.min(map.size - 1, current.y + 1); ++i) {
                 for (int j = Math.max(0, current.x - 1); j <= Math.min(map.size - 1, current.x + 1); ++j) {
+                    // map.cells[i][j] - a neighbour of current cell
                     if (i == current.y && j == current.x) continue;
                     if (!closed.contains(map.cells[i][j]) && map.isNonDangerous(map.cells[i][j], current.isKrakenKilled)) {
                         if (!open.contains(map.cells[i][j])) {
-                            if (map.cells[i][j].type == CellType.Tortuga || map.cells[i][j].type == CellType.JackOnTortuga || hasVisitedTortuga) {
-                                map.cells[i][j].hasVisitedTortuga = true;
-                            }
-                            if ((map.isKrakenWeakness(map.cells[i][j]) && map.cells[i][j].hasVisitedTortuga) || current.isKrakenKilled) {
-                                map.cells[i][j].isKrakenKilled = true;
-                            }
-                            map.cells[i][j].g = current.g + 1;
-                            map.cells[i][j].parent = current;
-                            map.cells[i][j].h = Math.max(Math.abs(map.units.get(CellType.DeadManChest).y - i),
-                                    Math.abs(map.units.get(CellType.DeadManChest).x - j));
-                            map.cells[i][j].f = map.cells[i][j].g + map.cells[i][j].f;
+                            map.cells[i][j].hasVisitedTortuga =
+                                    map.cells[i][j].type == CellType.Tortuga
+                                            || map.cells[i][j].type == CellType.JackOnTortuga || hasVisitedTortuga;
+                            map.cells[i][j].isKrakenKilled =
+                                    (map.isKrakenWeakness(map.cells[i][j]) && map.cells[i][j].hasVisitedTortuga)
+                                            || current.isKrakenKilled;
+
+                            map.updateAStarInformation(map.cells[i][j], current, finish);
                             open.offer(map.cells[i][j]);
                         } else {
+                            open.remove(map.cells[i][j]);
                             if (current.g + 1 < map.cells[i][j].g) {
-                                map.cells[i][j].g = current.g + 1;
-                                map.cells[i][j].parent = current;
-                                map.cells[i][j].h = Math.max(Math.abs(map.units.get(CellType.DeadManChest).y - i),
-                                        Math.abs(map.units.get(CellType.DeadManChest).x - j));
-                                map.cells[i][j].f = map.cells[i][j].g + map.cells[i][j].f;
+                                map.updateAStarInformation(map.cells[i][j], current, finish);
                             }
+                            open.offer(map.cells[i][j]);
                         }
 
                     }
@@ -755,6 +795,11 @@ class SearchAlgorithms {
         }
     }
 
+    /**
+     * Calculate the shortest path from start cell to finish cell
+     * using parents of the cells that were obtained by A* algorithm
+     * @return shortest path
+     */
     private static ArrayList<Cell> AStarPath(Cell start, Cell finish) {
         Cell current = finish;
         ArrayList<Cell> result = new ArrayList<>();
@@ -771,37 +816,39 @@ class SearchAlgorithms {
         return result;
     }
 
-    private static void clearAStarData(Map map) {
-        for (int i = 0; i < map.size; ++i) {
-            for (int j = 0; j < map.size; ++j) {
-                map.cells[i][j].parent = null;
-                map.cells[i][j].isKrakenKilled = false;
-                map.cells[i][j].hasVisitedTortuga = false;
-                map.cells[i][j].f = map.cells[i][j].g = map.cells[i][j].h = 0;
-            }
-        }
-    }
 
+
+    /**
+     * Methods that finds the shortest path using A* algorithm several times.
+     * @return the shortest path
+     */
     public static ArrayList<Cell> AStar(Map map) {
-        ArrayList<Cell> result1;
-        Cell jackSparrow = map.units.get(CellType.JackSparrow);
-        jackSparrow = map.cells[jackSparrow.y][jackSparrow.x];
+        Cell jackSparrow = map.cells[0][0];
         Cell tortuga = map.units.get(CellType.Tortuga);
+        // this line is needed because on the map there can be JackWithTortuga instead of Tortuga,
+        // but in the units hashmap Jack Sparrow and Tortuga are separate units always
         tortuga = map.cells[tortuga.y][tortuga.x];
         Cell[] krakenWeaknesses = map.getKrakenWeaknesses();
         Cell deadManChest = map.units.get(CellType.DeadManChest);
-        AStarAlgorithm(map, jackSparrow, deadManChest, false);
-        result1 = AStarPath(jackSparrow, deadManChest);
-        clearAStarData(map);
 
+        // result1 - the shortest path from Jack Sparrow to Dead Man's chest
+        // null if it doesn't exist
+        AStarAlgorithm(map, jackSparrow, deadManChest, false);
+        ArrayList<Cell> result1 = AStarPath(jackSparrow, deadManChest);
+        map.clearAStarData();
+
+        // result2 - the path from Jack Sparrow to Tortuga
         AStarAlgorithm(map, jackSparrow, tortuga, false);
-        var result2 = AStarPath(jackSparrow, tortuga);
+        ArrayList<Cell> result2 = AStarPath(jackSparrow, tortuga);
+        // if it's null return the first one
         if (result2 == null) {
             if (result1 != null)
                 result1.add(0, map.cells[0][0]);
             return result1;
         }
-        clearAStarData(map);
+        map.clearAStarData();
+
+        // these are the shortest paths from Tortuga to Dead Man's chest through one of the Kraken weakness cells
         ArrayList<ArrayList<Cell>> pathsKillingKraken = new ArrayList<>(4);
         int minPathIndex = -1;
         int minPathLength = Integer.MAX_VALUE;
@@ -811,10 +858,11 @@ class SearchAlgorithms {
             if (pathsKillingKraken.get(i) == null) {
                 continue;
             }
-            clearAStarData(map);
+            map.clearAStarData();
             AStarAlgorithm(map, krakenWeaknesses[i], deadManChest, true);
             ArrayList<Cell> fromKrakenWeaknessToDeadManChest = AStarPath(krakenWeaknesses[i], deadManChest);
-            clearAStarData(map);
+            map.clearAStarData();
+            // if the second part of the path doesn't exist, tthe whole path doesn't exist
             if (fromKrakenWeaknessToDeadManChest == null) {
                 pathsKillingKraken.set(i, null);
                 continue;
@@ -826,8 +874,14 @@ class SearchAlgorithms {
             }
         }
         if (minPathIndex < 0) result2 = null;
+        // if we found such an index, that means that the path exists and the pathsKillingKraken.get(minPathIndex) is
+        // the shortest one.
+        // Add to the first part of the 2 path (from Jack to Tortuga) the second part.
         else result2.addAll(pathsKillingKraken.get(minPathIndex));
-        var result = result1;
+
+        // result is the shortest path among result1 and result2 (if they're not null)
+        // if result == null the path doesn't exist.
+        ArrayList<Cell> result = result1;
         if (result == null) result = result2;
         else if (result2 != null && result1.size() > result2.size()) {
             result = result2;
