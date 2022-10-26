@@ -1,7 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -24,10 +21,12 @@ public class Main {
 
     /**
      * Prints the shortest path to the output file and all corresponding information specified in the assignment
+     *
      * @throws FileNotFoundException if the file doesn't exist
      */
     public static void printResultToTheOutputFile(String pathOfOutputFile, Map map, ArrayList<Cell> shortestPath, long time) throws FileNotFoundException {
-        PrintWriter printWriter = new PrintWriter(pathOfOutputFile);
+        File output = new File(pathOfOutputFile);
+        PrintWriter printWriter = new PrintWriter(output);
 
         if (shortestPath == null) {
             printWriter.println("Lose");
@@ -50,72 +49,91 @@ class SampleTest {
     public static void main(String[] args) throws Exception {
         Map map = new Map();
         int wins = 0, losses = 0;
-        HashMap<Long, Integer> pdfBacktracking = new HashMap<>(), pdfAStar = new HashMap<>();
-        ArrayList<Long> sampleBacktracking = new ArrayList<>(1000), sampleAStar = new ArrayList<>(1000);
+        int numberOfSamples = 10000;
+        // Probability density function for backtracking runs, for A* runs
+        HashMap<Long, Integer> pdfBacktracking1 = new HashMap<>(), pdfBacktracking2 = new HashMap<>(),
+                pdfAStar1 = new HashMap<>(), pdfAStar2 = new HashMap<>();
+        // Sample space for backtracking runs, for A* runs
+        ArrayList<Long> sampleBacktracking1 = new ArrayList<>(numberOfSamples),
+                sampleBacktracking2 = new ArrayList<>(numberOfSamples),
+                sampleAStar1 = new ArrayList<>(numberOfSamples),
+                sampleAStar2 = new ArrayList<>(numberOfSamples);
         for (int i = 0; i < 10000; ++i) {
             map.generateMapRandomly();
-            long backtrackingTime = System.currentTimeMillis();
-            ArrayList<Cell> pathBacktracking = SearchAlgorithms.backtracking(map);
-            backtrackingTime = System.currentTimeMillis() - backtrackingTime;
-            System.out.println(backtrackingTime);
-            int backtracking = 0;
-            int aStar = 0;
-            if (pathBacktracking != null) backtracking = pathBacktracking.size();
-            long AStarTime = System.currentTimeMillis();
-            ArrayList<Cell> pathAStar = SearchAlgorithms.AStar(map);
-            AStarTime = System.currentTimeMillis() - AStarTime;
-            if (pathAStar != null) aStar = pathAStar.size();
-            if (backtracking != aStar) {
+            map.typeOfScenario = 1;
+            int backtrackingPathLength1 = collectSamples(map, pdfBacktracking1, sampleBacktracking1, "Backtracking");
+            int aStarPathLength1 = collectSamples(map, pdfAStar1, sampleAStar1, "A*");
+            map.typeOfScenario = 2;
+            int backtrackingPathLength2 = collectSamples(map, pdfBacktracking2, sampleBacktracking2, "BackTracking");
+            int aStarPathLength2 = collectSamples(map, pdfAStar2, sampleAStar2, "A*");
+            // if algorithms obtained different path lengths, one of them (at least) is incorrect
+            // print map and additional information to find and fix bugs.
+            if (backtrackingPathLength1 != aStarPathLength1 || backtrackingPathLength2 != aStarPathLength2) {
+
                 System.out.println(map);
                 System.out.println(map.unitsToString());
-                if (pathBacktracking != null) {
-                    for (var cell : pathBacktracking) {
-                        System.out.print(cell);
-                    }
-                    System.out.println();
-                }
-                if (pathAStar != null) {
-                    for (var cell : pathAStar) {
-                        System.out.print(cell);
-                    }
-                    System.out.println();
-                }
+                System.out.println(backtrackingPathLength1 + " " + backtrackingPathLength2 + " " + aStarPathLength1 + " " + aStarPathLength2);
                 throw new Exception("ERROR");
             }
             map.clear();
-            sampleBacktracking.add(backtrackingTime);
-            if (!pdfBacktracking.containsKey(backtrackingTime)) {
-                pdfBacktracking.put(backtrackingTime, 0);
-            } else {
-                pdfBacktracking.put(backtrackingTime, pdfBacktracking.get(backtrackingTime) + 1);
-            }
-            sampleAStar.add(AStarTime);
-            if (!pdfAStar.containsKey(AStarTime)) {
-                pdfAStar.put(AStarTime, 0);
-            } else {
-                pdfAStar.put(AStarTime, pdfAStar.get(AStarTime) + 1);
-            }
 
-            if (backtracking > 0) {
+            // count wins and losses
+            // since all the paths should be equal, it doesn't matter which one is checked
+            if (backtrackingPathLength1 > 0) {
                 wins++;
             } else {
                 losses++;
             }
         }
-        printStatistics(wins, losses, sampleBacktracking, pdfBacktracking, "Backtracking");
-        printStatistics(wins, losses, sampleAStar, pdfAStar, "A*");
+
+        // print statistics
+        printStatistics(wins, losses, sampleBacktracking1, pdfBacktracking1, "Backtracking", 1);
+        printStatistics(wins, losses, sampleAStar1, pdfAStar1, "A*", 1);
+        printStatistics(wins, losses, sampleBacktracking2, pdfBacktracking2, "Backtracking", 2);
+        printStatistics(wins, losses, sampleAStar2, pdfAStar2, "A*", 2);
     }
 
-    public static void printStatistics(int wins, int losses, ArrayList<Long> sample, HashMap<Long, Integer> pdf, String algorithmName) {
+    public static int collectSamples(Map map, HashMap<Long, Integer> pdf, ArrayList<Long> sample, String algorithmName) {
+        long time;
+        ArrayList<Cell> path;
+        if (algorithmName.equals("Backtracking")) {
+            time = System.currentTimeMillis();
+            path = SearchAlgorithms.backtracking(map);
+            time = System.currentTimeMillis() - time;
+        } else {
+            time = System.currentTimeMillis();
+            path = SearchAlgorithms.AStar(map);
+            time = System.currentTimeMillis() - time;
+        }
+        int pathLength = path != null ? path.size() : 0;
+
+        // fill sample spaces and pdfs
+        sample.add(time);
+        if (!pdf.containsKey(time)) {
+            pdf.put(time, 0);
+        } else {
+            pdf.put(time, pdf.get(time) + 1);
+        }
+
+        return pathLength;
+    }
+
+    public static void printStatistics(int wins, int losses, ArrayList<Long> sample, HashMap<Long, Integer> pdf, String algorithmName, int typeOfScenario) throws IOException {
+        File statistics = new File("statistics.txt");
+        PrintWriter writer = new PrintWriter(new FileOutputStream(statistics, true));
         int n = wins + losses;
         double mean = sample.stream().mapToDouble(value -> value).sum() / n;
-        long mode = pdf.entrySet().stream().max(java.util.Map.Entry.comparingByValue()).get().getKey();
+        var tmp = pdf.entrySet().stream().max(java.util.Map.Entry.comparingByValue());
+        long mode = 0;
+        if (tmp.isPresent()) {
+            mode = tmp.get().getKey();
+        }
         sample.sort(null);
         double median = (sample.get(n / 2 - 1) + sample.get(n / 2)) * 1. / 2;
         double standardDeviation = Math.sqrt(sample.stream().mapToDouble(e -> (e - mean) * (e - mean)).sum() / n);
         //System.out.println(sample);
-        System.out.printf("""
-                         %s (1 variant):
+        writer.printf("""
+                         %s (%d variant):
                          Mean: %.2f ms
                          Mode: %d ms
                          Median: %.2f ms
@@ -124,8 +142,9 @@ class SampleTest {
                          Number of losses: %d
                          Percent of wins: %.2f %%
                          Percent of losses: %.2f %%
-                        """, algorithmName, mean, mode, median, standardDeviation,
+                        """, algorithmName, typeOfScenario, mean, mode, median, standardDeviation,
                 wins, losses, wins * 1. / n * 100, losses * 1. / n * 100);
+        writer.close();
     }
 }
 
@@ -133,10 +152,6 @@ class SampleTest {
  * Class that represents a cell on the map.
  */
 class Cell implements Comparable<Cell> {
-    /**
-     * Coordinates of the cell.
-     */
-    // TODO - swap coordinates
     int y, x;
     /**
      * Type of the cell (Jack Sparrow, Kraken, etc.)
@@ -246,6 +261,7 @@ class Map {
 
     /**
      * This method was used to print the arrangement of the maps that were led to fail of an algorithm.
+     *
      * @return the current arrangement of the units in the format specified for the input file as a string.
      */
     public String unitsToString() {
@@ -473,7 +489,7 @@ class Map {
 
     /**
      * Generates map using information from the input file.
-     * We assume that at the time this method runs, this.units is already filled with the input information.
+     * We assume that at the time this method runs, units hashmap is already filled with the input information.
      *
      * @throws IOException if the location of units is invalid.
      */
@@ -633,8 +649,9 @@ class Map {
 
     /**
      * Update A* fields of the current cell
+     *
      * @param current considering cell
-     * @param parent previous cell of the current in the path
+     * @param parent  previous cell of the current in the path
      */
     public void updateAStarInformation(Cell current, Cell parent, Cell destination) {
         current.g = parent.g + 1;
@@ -689,8 +706,25 @@ class SearchAlgorithms {
                 if (map.isNonDangerous(map.cells[i][j], isKrakenKilled) && map.cells[i][j].d > d + 1) {
                     ArrayList<Cell> tmp = new ArrayList<>(path);
                     tmp.add(map.cells[i][j]);
-                    ArrayList<Cell> tmp2 =
-                            backtracking(map, tmp, map.cells[i][j], destination, d + 1, hasVisitedTortuga, isKrakenKilled);
+                    int i2 = i + (i - current.y), j2 = j + (j - current.x);
+                    ArrayList<Cell> tmp2;
+                    if (map.typeOfScenario == 2 && i2 >= 0 && i2 < map.size && j2 >= 0 && j2 < map.size &&
+                            Math.abs(i2) + Math.abs(j2) == 1 &&
+                            map.isNonDangerous(map.cells[i2][j2], isKrakenKilled) && map.cells[i2][j2].d > d + 1 &&
+                            map.cells[i][j] != destination) {
+                        tmp.add(map.cells[i2][j2]);
+                        if (map.cells[i2][j2].type == CellType.Tortuga) {
+                            hasVisitedTortuga = true;
+                        }
+                        if (map.isKrakenWeakness(current) && hasVisitedTortuga) {
+                            isKrakenKilled = true;
+                        }
+                        tmp2 = backtracking(map, tmp, map.cells[i2][j2],
+                                        destination, d + 2, hasVisitedTortuga, isKrakenKilled);
+                    } else {
+                        tmp2 = backtracking(map, tmp, map.cells[i][j],
+                                        destination, d + 1, hasVisitedTortuga, isKrakenKilled);
+                    }
                     int currentLength = Integer.MAX_VALUE;
                     if (tmp2 != null) {
                         currentLength = tmp2.size();
@@ -798,6 +832,7 @@ class SearchAlgorithms {
     /**
      * Calculate the shortest path from start cell to finish cell
      * using parents of the cells that were obtained by A* algorithm
+     *
      * @return shortest path
      */
     private static ArrayList<Cell> AStarPath(Cell start, Cell finish) {
@@ -817,9 +852,9 @@ class SearchAlgorithms {
     }
 
 
-
     /**
      * Methods that finds the shortest path using A* algorithm several times.
+     *
      * @return the shortest path
      */
     public static ArrayList<Cell> AStar(Map map) {
@@ -862,7 +897,7 @@ class SearchAlgorithms {
             AStarAlgorithm(map, krakenWeaknesses[i], deadManChest, true);
             ArrayList<Cell> fromKrakenWeaknessToDeadManChest = AStarPath(krakenWeaknesses[i], deadManChest);
             map.clearAStarData();
-            // if the second part of the path doesn't exist, tthe whole path doesn't exist
+            // if the second part of the path doesn't exist, the whole path doesn't exist
             if (fromKrakenWeaknessToDeadManChest == null) {
                 pathsKillingKraken.set(i, null);
                 continue;
@@ -874,9 +909,9 @@ class SearchAlgorithms {
             }
         }
         if (minPathIndex < 0) result2 = null;
-        // if we found such an index, that means that the path exists and the pathsKillingKraken.get(minPathIndex) is
-        // the shortest one.
-        // Add to the first part of the 2 path (from Jack to Tortuga) the second part.
+            // if we found such an index, that means that the path exists and the pathsKillingKraken.get(minPathIndex) is
+            // the shortest one.
+            // Add to the first part of the 2 path (from Jack to Tortuga) the second part.
         else result2.addAll(pathsKillingKraken.get(minPathIndex));
 
         // result is the shortest path among result1 and result2 (if they're not null)
