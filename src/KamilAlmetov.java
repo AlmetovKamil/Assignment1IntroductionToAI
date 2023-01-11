@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class Main {
+public class KamilAlmetov {
     public static void main(String[] args) throws IOException {
         Map map = new Map();
         map.generateMap();
@@ -58,13 +58,13 @@ class SampleTest {
                 sampleBacktracking2 = new ArrayList<>(numberOfSamples),
                 sampleAStar1 = new ArrayList<>(numberOfSamples),
                 sampleAStar2 = new ArrayList<>(numberOfSamples);
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < numberOfSamples; ++i) {
             map.generateMapRandomly();
             map.typeOfScenario = 1;
             int backtrackingPathLength1 = collectSamples(map, pdfBacktracking1, sampleBacktracking1, "Backtracking");
             int aStarPathLength1 = collectSamples(map, pdfAStar1, sampleAStar1, "A*");
             map.typeOfScenario = 2;
-            int backtrackingPathLength2 = collectSamples(map, pdfBacktracking2, sampleBacktracking2, "BackTracking");
+            int backtrackingPathLength2 = collectSamples(map, pdfBacktracking2, sampleBacktracking2, "Backtracking");
             int aStarPathLength2 = collectSamples(map, pdfAStar2, sampleAStar2, "A*");
             // if algorithms obtained different path lengths, one of them (at least) is incorrect
             // print map and additional information to find and fix bugs.
@@ -87,6 +87,8 @@ class SampleTest {
         }
 
         // print statistics
+        FileWriter statistics = new FileWriter("statistics.txt");
+        statistics.close();
         printStatistics(wins, losses, sampleBacktracking1, pdfBacktracking1, "Backtracking", 1);
         printStatistics(wins, losses, sampleAStar1, pdfAStar1, "A*", 1);
         printStatistics(wins, losses, sampleBacktracking2, pdfBacktracking2, "Backtracking", 2);
@@ -106,7 +108,8 @@ class SampleTest {
             time = System.currentTimeMillis() - time;
         }
         int pathLength = path != null ? path.size() : 0;
-
+        map.clearDistances();
+        map.clearAStarData();
         // fill sample spaces and pdfs
         sample.add(time);
         if (!pdf.containsKey(time)) {
@@ -142,6 +145,7 @@ class SampleTest {
                          Number of losses: %d
                          Percent of wins: %.2f %%
                          Percent of losses: %.2f %%
+                        
                         """, algorithmName, typeOfScenario, mean, mode, median, standardDeviation,
                 wins, losses, wins * 1. / n * 100, losses * 1. / n * 100);
         writer.close();
@@ -708,6 +712,10 @@ class SearchAlgorithms {
                     tmp.add(map.cells[i][j]);
                     int i2 = i + (i - current.y), j2 = j + (j - current.x);
                     ArrayList<Cell> tmp2;
+                    // if type of scenario is 2 and the neighbour is horizontal or vertical, we can step over it.
+                    // But only if the next cell is non-dangerous.
+                    // Also, we have to check that we don't step over the destination point,
+                    // whether we collected Tortuga and killed Kraken.
                     if (map.typeOfScenario == 2 && i2 >= 0 && i2 < map.size && j2 >= 0 && j2 < map.size &&
                             Math.abs(i2) + Math.abs(j2) == 1 &&
                             map.isNonDangerous(map.cells[i2][j2], isKrakenKilled) && map.cells[i2][j2].d > d + 1 &&
@@ -720,10 +728,10 @@ class SearchAlgorithms {
                             isKrakenKilled = true;
                         }
                         tmp2 = backtracking(map, tmp, map.cells[i2][j2],
-                                        destination, d + 2, hasVisitedTortuga, isKrakenKilled);
+                                destination, d + 2, hasVisitedTortuga, isKrakenKilled);
                     } else {
                         tmp2 = backtracking(map, tmp, map.cells[i][j],
-                                        destination, d + 1, hasVisitedTortuga, isKrakenKilled);
+                                destination, d + 1, hasVisitedTortuga, isKrakenKilled);
                     }
                     int currentLength = Integer.MAX_VALUE;
                     if (tmp2 != null) {
@@ -820,6 +828,35 @@ class SearchAlgorithms {
                                 map.updateAStarInformation(map.cells[i][j], current, finish);
                             }
                             open.offer(map.cells[i][j]);
+                        }
+                        // if type of scenario is 2 and the neighbour is horizontal or vertical, we can step over it.
+                        // But only if the next cell is non-dangerous.
+                        // Also, we have to check that we don't step over the destination point,
+                        // whether we collected Tortuga and killed Kraken.
+                        int i2 = i + (i - current.y), j2 = j + (j - current.x);
+                        if (map.typeOfScenario == 2 && i2 >= 0 && i2 < map.size && j2 >= 0 && j2 < map.size &&
+                                Math.abs(i2) + Math.abs(j2) == 1 &&
+                                map.isNonDangerous(map.cells[i2][j2], current.isKrakenKilled) &&
+                                !closed.contains(map.cells[i2][j2])) {
+                            if (!open.contains(map.cells[i2][j2])) {
+                                map.cells[i2][j2].hasVisitedTortuga =
+                                        map.cells[i2][j2].type == CellType.Tortuga
+                                                || map.cells[i2][j2].type == CellType.JackOnTortuga
+                                                || map.cells[i][j].hasVisitedTortuga || hasVisitedTortuga;
+                                map.cells[i2][j2].isKrakenKilled =
+                                        (map.isKrakenWeakness(map.cells[i2][j2]) && map.cells[i2][j2].hasVisitedTortuga)
+                                                || (map.isKrakenWeakness(map.cells[i][j]) && map.cells[i][j].hasVisitedTortuga)
+                                                || current.isKrakenKilled || map.cells[i][j].isKrakenKilled;
+                                map.updateAStarInformation(map.cells[i2][j2], map.cells[i][j], finish);
+                                open.offer(map.cells[i2][j2]);
+                            } else {
+                                open.remove(map.cells[i2][j2]);
+                                if (current.g + 1 < map.cells[i2][j2].g) {
+                                    map.updateAStarInformation(map.cells[i2][j2], map.cells[i][j], finish);
+                                }
+                                open.offer(map.cells[i2][j2]);
+                            }
+
                         }
 
                     }
